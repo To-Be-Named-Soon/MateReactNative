@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TutorialScreen from './components/screens/TutorialScreen';
 import Login from './components/screens/LoginScreen';
 import * as SecureStore from 'expo-secure-store';
+import { Linking } from 'react-native';
 
 type AuthState = {
   isLoading: boolean;
@@ -22,7 +23,7 @@ type AuthContext = {
 };
 
 const Stack = createNativeStackNavigator();
-const AuthContext = React.createContext(null as unknown as AuthContext);
+export const AuthContext = React.createContext(null as unknown as AuthContext);
 
 const App = () => {
   const [state, dispatch] = React.useReducer<React.Reducer<AuthState, AuthAction>>(
@@ -57,6 +58,20 @@ const App = () => {
     }
   );
 
+  const config = {
+    screens: {
+      Login: 'alrty',
+    },
+  };
+
+  const linking = {
+    prefixes: [
+      /* your linking prefixes */
+      "mate://"
+    ],
+    config
+  };
+
   React.useEffect(() => {
     const bootstrapAsync = async () => {
       let userToken;
@@ -73,6 +88,16 @@ const App = () => {
     bootstrapAsync();
   }, []);
 
+  //  React.useEffect(() => {
+  //    const doWait = () => {
+  //      Linking.getInitialURL().then(ev => {
+  //        console.warn(ev)
+  //      })
+  //    };
+  //    Linking.addEventListener('url', doWait);
+  //    return () => Linking.removeAllListeners('url');
+  //  }, [])
+
 
   const authContext = React.useMemo<AuthContext>(() => ({
     signIn: async (data) => {
@@ -85,7 +110,7 @@ const App = () => {
   }), []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <AuthContext.Provider value={authContext}>
         <Stack.Navigator initialRouteName="Login">
           {state.userToken == null ? (
